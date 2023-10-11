@@ -27,15 +27,15 @@ jobs:
   build-and-push:
     executor: docker/docker #State the environment that we are using
     steps:
-      -setup_remote_docker #this allows us to run docker commands
-      -checkout
-      -docker/check
-      -docker/build:
-        image: francis/education-space 
-        tag: 1.0.1
-      -docker/push:
-        image: francis/education-space
-        tag: 1.0.1
+      - setup_remote_docker #this allows us to run docker commands
+      - checkout
+      - docker/check
+      - docker/build:
+          image: francis/education-space 
+          tag: 1.0.1
+      - docker/push:
+          image: francis/education-space
+          tag: 1.0.1
         
 workflows:
   simple_workflow:
