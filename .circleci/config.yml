@@ -43,14 +43,14 @@ jobs:
       - image: cimg/node:16.10
     steps:
       - setup_remote_docker
-      - heruoku/install #installs heroku cli for our run command
+      - heroku/install #installs heroku cli for our run command
       - checkout
       - run: 
           name: Heroku Container Push # the name of the gorup of commands we are running. By right without the name it can work
           command: |
             heroku container:login
-            heroku container:push web -a terencegaffude-su-devops
-            heroku container:release web -a terencegaffud-su-devops
+            heroku container:push web -a franc0isss
+            heroku container:release web -a franc0isss
         #the push command pushes the image to heroku'scontainer registry
         #the release command deploys the image from heroku's container registry
         
