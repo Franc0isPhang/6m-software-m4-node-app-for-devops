@@ -1,7 +1,7 @@
 version: 2.1
 orbs:
   node: circleci/node@5.0.1
-  docker:circleci/docker@2.1.4
+  docker: circleci/docker@2.1.4
 jobs:
   build:
     docker:
@@ -43,6 +43,6 @@ workflows:
       - test:
           requires:
             - build
-      -build-and-push
+      -build-and-push:
         requires:
           -test
