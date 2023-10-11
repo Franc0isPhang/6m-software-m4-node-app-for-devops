@@ -24,7 +24,7 @@ jobs:
           echo "Running tests..."
           npm run test
   build-and-push:
-    executor:docker/docker #State the environment that we are using
+    executor: docker/docker #State the environment that we are using
     steps:
       -setup_remote_docker #this allows us to run docker commands
       -checkout
