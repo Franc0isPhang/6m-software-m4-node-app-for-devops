@@ -45,7 +45,7 @@ jobs:
       - setup_remote_docker
       - heruoku/install #installs heroku cli for our run command
       - checkout
-      - run
+      - run: 
           name: Heroku Container Push # the name of the gorup of commands we are running. By right without the name it can work
           command: |
             heroku container:login
