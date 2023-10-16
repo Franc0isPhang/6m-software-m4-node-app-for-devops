@@ -1,0 +1,66 @@
+version: 2.1
+orbs: #packages
+  node: circleci/node@5.0.1
+  docker: circleci/docker@2.1.4 #allow us to use docker orb's commands
+  snyk: snyk/snyk@1.5.0
+jobs: #instructions for each step
+  build: #build the application, install dependencies
+    docker: #container to handle the steps
+      - image: cimg/node:16.10
+    steps:
+      - checkout #copies the working directory of the project
+      - node/install-packages:
+          pkg-manager: npm
+      - run: |
+          echo "Installing dependencies..."
+          npm install
+  test:
+    docker:
+      - image: cimg/node:16.10
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: npm
+      - run: 
+          echo "Running tests..."
+          npm run test
+          
+  build-and-push:
+    executor: docker/docker #State the environment that we are using
+    steps:
+      - setup_remote_docker #this allows us to run docker commands
+      - checkout
+      - docker/check
+      - docker/build:
+          image:franc0isss/education-space 
+          tag: 1.0.1
+      - docker/push:
+          image:franc0isss/education-space
+          tag: 1.0.1
+  scan:
+        docker:
+            - image: cimg/node:16.10
+        environment:
+            IMAGE_NAME: franc0isss/education-space #the image name is a variable we could use in our jobs/steps
+        steps:
+            - checkout
+            - setup_remote_docker      
+            - docker/check
+            - run: docker build -t $IMAGE_NAME .
+            - snyk/scan: 
+                docker-image-name: $IMAGE_NAME
+
+workflows: #defines how each job would run and relate to each other and
+#any other dependent states (ex. only run if pushed to main branch)
+  simple_workflow:
+    jobs:
+      - build #1st job
+      - test: #2nd job
+          requires:
+            - build
+      - build-and-push: #3rd job
+          requires:
+             -test
+      -scan:
+        requires:
+           -build

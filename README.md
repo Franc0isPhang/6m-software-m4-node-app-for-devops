@@ -22,6 +22,11 @@ Sample Snippet from package.json:
   }
 ```
 
+
+it is currently listening to port 3000
+
+
+
 ### npm run start
 
 The `npm run start` command will start the application. By default, it will use the `PORT` number specified in the `.env` file [here](./.env). Upon successful start, you will see the logging message:
