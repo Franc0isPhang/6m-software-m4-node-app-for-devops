@@ -1,14 +1,14 @@
 version: 2.1
-orbs: #packages
+orbs:
   node: circleci/node@5.0.1
-  docker: circleci/docker@2.1.4 #allow us to use docker orb's commands
-  snyk: snyk/snyk@1.5.0
-jobs: #instructions for each step
-  build: #build the application, install dependencies
-    docker: #container to handle the steps
+  docker: circleci/docker@2.1.4
+  heroku: circleci/heroku@2.0.0 #allows us to use heroku
+jobs:
+  build:
+    docker:
       - image: cimg/node:16.10
     steps:
-      - checkout #copies the working directory of the project
+      - checkout
       - node/install-packages:
           pkg-manager: npm
       - run: |
@@ -21,7 +21,7 @@ jobs: #instructions for each step
       - checkout
       - node/install-packages:
           pkg-manager: npm
-      - run: 
+      - run: |
           echo "Running tests..."
           npm run test
           
@@ -32,35 +32,41 @@ jobs: #instructions for each step
       - checkout
       - docker/check
       - docker/build:
-          image:franc0isss/education-space 
+          image: franc0isss/education-space 
           tag: 1.0.1
       - docker/push:
-          image:franc0isss/education-space
+          image: franc0isss/education-space
           tag: 1.0.1
-  scan:
-        docker:
-            - image: cimg/node:16.10
-        environment:
-            IMAGE_NAME: franc0isss/education-space #the image name is a variable we could use in our jobs/steps
-        steps:
-            - checkout
-            - setup_remote_docker      
-            - docker/check
-            - run: docker build -t $IMAGE_NAME .
-            - snyk/scan: 
-                docker-image-name: $IMAGE_NAME
 
-workflows: #defines how each job would run and relate to each other and
-#any other dependent states (ex. only run if pushed to main branch)
+  deploy:
+    docker:
+      - image: cimg/node:16.10
+    steps:
+      - setup_remote_docker
+      - heroku/install #installs heroku cli for our run command
+      - checkout
+      - run: 
+          name: Heroku Container Push # the name of the gorup of commands we are running. By right without the name it can work
+          command: |
+            heroku container:login
+            heroku container:push web -a franc0isss
+            heroku container:release web -a franc0isss
+        #the push command pushes the image to heroku'scontainer registry
+        #the release command deploys the image from heroku's container registry
+        
+workflows: #defines how each job would run and relate to each other and any other dependent states (ex. only run if pushed to main branch)
+
   simple_workflow:
     jobs:
-      - build #1st job
-      - test: #2nd job
+      - build
+      - test:
           requires:
             - build
-      - build-and-push: #3rd job
+      - build-and-push:
           requires:
-             -test
-      -scan:
-        requires:
-           -build
+            - test
+      - deploy:
+          requires:
+            - build-and-push
+
+#mini-exercise -add the deploy job so that it depends on build-and-push
